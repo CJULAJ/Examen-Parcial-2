@@ -70,8 +70,11 @@ public class VentanaPrincipal extends JFrame {
 
     private Integer idSeleccionado = null;
 
-    private final DateTimeFormatter formatoTabla =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private final DateTimeFormatter formatoFecha =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    private final DateTimeFormatter formatoHora =
+            DateTimeFormatter.ofPattern("HH:mm");
 
     public VentanaPrincipal() {
 
@@ -148,22 +151,25 @@ public class VentanaPrincipal extends JFrame {
     }
 
     private Cita leerFormulario(boolean esNueva) {
-    	
-    	String fechaUltimaTexto = txtFechaUltimaCita.getText().trim();
+
         String cliente = txtCliente.getText().trim();
         String fechaTexto = txtFecha.getText().trim();
         String horaTexto = txtHora.getText().trim();
         String servicio = txtServicio.getText().trim();
         String duracionTexto = txtDuracion.getText().trim();
+        String fechaUltimaTexto = txtFechaUltimaCita.getText().trim();
         String estado = (String) cmbEstado.getSelectedItem();
 
-        if (cliente.isEmpty() || fechaTexto.isEmpty()
-                || horaTexto.isEmpty() || servicio.isEmpty()
+        // Validar campos obligatorios
+        if (cliente.isEmpty()
+                || fechaTexto.isEmpty()
+                || horaTexto.isEmpty()
+                || servicio.isEmpty()
                 || duracionTexto.isEmpty()) {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Todos los campos son obligatorios.",
+                    "Todos los campos obligatorios deben llenarse.",
                     "Validación",
                     JOptionPane.WARNING_MESSAGE);
 
@@ -172,18 +178,21 @@ public class VentanaPrincipal extends JFrame {
 
         try {
 
-            LocalDate fecha = LocalDate.parse(fechaTexto);
-            LocalTime hora = LocalTime.parse(horaTexto);
-            LocalDateTime fechaHora = LocalDateTime.of(fecha, hora);
-            LocalDate fechaUltimaCita = null;
+            // Convertir fecha y hora de la nueva cita
+            LocalDate fecha = LocalDate.parse(
+                    fechaTexto, formatoFecha);
 
-            if (!fechaUltimaTexto.isEmpty()) {
-                fechaUltimaCita = LocalDate.parse(fechaUltimaTexto);
-            }
+            LocalTime hora = LocalTime.parse(
+                    horaTexto, formatoHora);
 
+            LocalDateTime fechaHora =
+                    LocalDateTime.of(fecha, hora);
+
+            // Validar duración
             int duracion = Integer.parseInt(duracionTexto);
 
             if (duracion <= 0) {
+
                 JOptionPane.showMessageDialog(
                         this,
                         "La duración debe ser mayor a cero.",
@@ -193,27 +202,25 @@ public class VentanaPrincipal extends JFrame {
                 return null;
             }
 
-            if (esNueva && fechaHora.isBefore(LocalDateTime.now())) {
+            // Una cita nueva no puede estar en el pasado
+            if (esNueva && !fechaHora.isAfter(LocalDateTime.now())) {
+
                 JOptionPane.showMessageDialog(
                         this,
-                        "La fecha y hora de una cita nueva no puede haber pasado.",
+                        "La fecha y hora de la cita debe ser futura.",
                         "Validación",
                         JOptionPane.WARNING_MESSAGE);
 
                 return null;
             }
 
-            if (!estado.equals("pendiente")
-                    && !estado.equals("confirmada")
-                    && !estado.equals("cancelada")) {
+            // Fecha de última cita es opcional
+            LocalDate fechaUltimaCita = null;
 
-                JOptionPane.showMessageDialog(
-                        this,
-                        "El estado seleccionado no es válido.",
-                        "Validación",
-                        JOptionPane.WARNING_MESSAGE);
+            if (!fechaUltimaTexto.isEmpty()) {
 
-                return null;
+                fechaUltimaCita = LocalDate.parse(
+                        fechaUltimaTexto, formatoFecha);
             }
 
             return new Cita(
@@ -228,7 +235,10 @@ public class VentanaPrincipal extends JFrame {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Usa fecha AAAA-MM-DD y hora HH:MM.",
+                    "Formato de fecha u hora incorrecto.\n\n"
+                    + "Fecha: AAAA-MM-DD\n"
+                    + "Hora: HH:MM\n"
+                    + "Ejemplo: 2026-10-10 y 14:30",
                     "Formato incorrecto",
                     JOptionPane.WARNING_MESSAGE);
 
@@ -361,7 +371,7 @@ public class VentanaPrincipal extends JFrame {
             	modeloTabla.addRow(new Object[] {
             	        cita.getId(),
             	        cita.getCliente(),
-            	        cita.getFechaHora().format(formatoTabla),
+            	        cita.getFechaHora().format(formatoFecha),
             	        cita.getServicio(),
             	        cita.getDuracionMinutos() + " min",
             	        cita.getEstado(),
