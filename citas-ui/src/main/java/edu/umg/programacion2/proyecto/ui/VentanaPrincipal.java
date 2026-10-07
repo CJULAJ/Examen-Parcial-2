@@ -35,7 +35,8 @@ public class VentanaPrincipal extends JFrame {
     private final JTextField txtHora = new JTextField();
     private final JTextField txtServicio = new JTextField();
     private final JTextField txtDuracion = new JTextField();
-
+    private final JTextField txtFechaUltimaCita = new JTextField();
+    
     private final JComboBox<String> cmbEstado =
             new JComboBox<>(new String[] {
                     "pendiente",
@@ -86,7 +87,7 @@ public class VentanaPrincipal extends JFrame {
 
         setLayout(new BorderLayout(10, 10));
 
-        JPanel formulario = new JPanel(new GridLayout(6, 2, 8, 8));
+        JPanel formulario = new JPanel(new GridLayout(7, 2, 8, 8));
         formulario.setBorder(
                 BorderFactory.createTitledBorder("Agendar cita"));
 
@@ -105,6 +106,9 @@ public class VentanaPrincipal extends JFrame {
         formulario.add(new JLabel("Duración (min):"));
         formulario.add(txtDuracion);
 
+        formulario.add(new JLabel("Fecha última cita (opcional):"));
+        formulario.add(txtFechaUltimaCita);
+        
         formulario.add(new JLabel("Estado:"));
         formulario.add(cmbEstado);
 
@@ -143,7 +147,8 @@ public class VentanaPrincipal extends JFrame {
     }
 
     private Cita leerFormulario(boolean esNueva) {
-
+    	
+    	String fechaUltimaTexto = txtFechaUltimaCita.getText().trim();
         String cliente = txtCliente.getText().trim();
         String fechaTexto = txtFecha.getText().trim();
         String horaTexto = txtHora.getText().trim();
@@ -169,6 +174,11 @@ public class VentanaPrincipal extends JFrame {
             LocalDate fecha = LocalDate.parse(fechaTexto);
             LocalTime hora = LocalTime.parse(horaTexto);
             LocalDateTime fechaHora = LocalDateTime.of(fecha, hora);
+            LocalDate fechaUltimaCita = null;
+
+            if (!fechaUltimaTexto.isEmpty()) {
+                fechaUltimaCita = LocalDate.parse(fechaUltimaTexto);
+            }
 
             int duracion = Integer.parseInt(duracionTexto);
 
@@ -210,7 +220,8 @@ public class VentanaPrincipal extends JFrame {
                     fechaHora,
                     servicio,
                     duracion,
-                    estado);
+                    estado,
+                    fechaUltimaCita);
 
         } catch (DateTimeParseException ex) {
 
