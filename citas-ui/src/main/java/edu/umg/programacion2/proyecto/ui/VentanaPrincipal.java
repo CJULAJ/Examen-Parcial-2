@@ -393,48 +393,53 @@ public class VentanaPrincipal extends JFrame {
             return;
         }
 
+        // Obtener solamente el ID desde la tabla
         idSeleccionado =
                 Integer.parseInt(
                         modeloTabla.getValueAt(fila, 0).toString());
 
-        txtCliente.setText(
-                modeloTabla.getValueAt(fila, 1).toString());
-
-        String fechaHora =
-                modeloTabla.getValueAt(fila, 2).toString();
-
-        String[] partes = fechaHora.split(" ");
-
-        txtFecha.setText(partes[0]);
-        txtHora.setText(partes[1]);
-
-        txtServicio.setText(
-                modeloTabla.getValueAt(fila, 3).toString());
-
-        txtDuracion.setText(
-                modeloTabla.getValueAt(fila, 4)
-                        .toString()
-                        .replace(" min", ""));
-
-        cmbEstado.setSelectedItem(
-                modeloTabla.getValueAt(fila, 5).toString());
-
-        // Buscar la cita para obtener la fecha de la última cita
         try {
 
             citaDAO.buscarPorId(idSeleccionado).ifPresent(cita -> {
 
+                // Cargar nombre del cliente
+                txtCliente.setText(cita.getCliente());
+
+                // Cargar fecha de la cita
+                txtFecha.setText(
+                        cita.getFechaHora()
+                            .toLocalDate()
+                            .format(formatoFecha));
+
+                // Cargar hora de la cita
+                txtHora.setText(
+                        cita.getFechaHora()
+                            .toLocalTime()
+                            .format(formatoHora));
+
+                // Cargar servicio
+                txtServicio.setText(cita.getServicio());
+
+                // Cargar duración
+                txtDuracion.setText(
+                        String.valueOf(cita.getDuracionMinutos()));
+
+                // Cargar estado
+                cmbEstado.setSelectedItem(cita.getEstado());
+
+                // Cargar fecha de última cita
                 if (cita.getFechaUltimaCita() != null) {
 
                     txtFechaUltimaCita.setText(
-                            cita.getFechaUltimaCita().toString());
+                            cita.getFechaUltimaCita()
+                                .format(formatoFecha));
 
                 } else {
 
                     txtFechaUltimaCita.setText("");
                 }
 
-                // La fecha de última cita no se puede modificar
+                // No se permite modificar este campo
                 txtFechaUltimaCita.setEnabled(false);
             });
 
@@ -442,7 +447,7 @@ public class VentanaPrincipal extends JFrame {
 
             mostrarErrorBD(ex);
         }
-    }
+    }  
     private void limpiarFormulario() {
 
         idSeleccionado = null;
