@@ -16,11 +16,12 @@ public class CitaDAO {
 
     public Cita crear(Cita cita) throws SQLException {
 
-        String sql = """
-                INSERT INTO citas
-                (cliente, fecha_hora, servicio, duracion_minutos, estado)
-                VALUES (?, ?, ?, ?, ?)
-                """;
+    	String sql = """
+    	        INSERT INTO citas
+    	        (cliente, fecha_hora, servicio, duracion_minutos, estado,
+    	         fecha_ultima_cita)
+    	        VALUES (?, ?, ?, ?, ?, ?)
+    	        """;
 
         try (Connection conexion = ConexionBD.obtenerConexion();
              PreparedStatement ps = conexion.prepareStatement(
@@ -31,7 +32,13 @@ public class CitaDAO {
             ps.setString(3, cita.getServicio());
             ps.setInt(4, cita.getDuracionMinutos());
             ps.setString(5, cita.getEstado());
-
+            if (cita.getFechaUltimaCita() != null) 
+            {
+                ps.setDate(6, java.sql.Date.valueOf(cita.getFechaUltimaCita()));
+            } else
+            {
+                ps.setNull(6, java.sql.Types.DATE);
+            }
             ps.executeUpdate();
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -50,7 +57,7 @@ public class CitaDAO {
 
         String sql = """
                 SELECT id, cliente, fecha_hora, servicio,
-                       duracion_minutos, estado
+                       duracion_minutos, estado, fecha_ultima_cita
                 FROM citas
                 ORDER BY fecha_hora
                 """;
@@ -61,13 +68,17 @@ public class CitaDAO {
 
             while (rs.next()) {
 
+                java.sql.Date fechaBD =
+                        rs.getDate("fecha_ultima_cita");
+
                 Cita cita = new Cita(
                         rs.getInt("id"),
                         rs.getString("cliente"),
                         rs.getTimestamp("fecha_hora").toLocalDateTime(),
                         rs.getString("servicio"),
                         rs.getInt("duracion_minutos"),
-                        rs.getString("estado")
+                        rs.getString("estado"),
+                        fechaBD == null ? null : fechaBD.toLocalDate()
                 );
 
                 citas.add(cita);
@@ -81,7 +92,7 @@ public class CitaDAO {
 
         String sql = """
                 SELECT id, cliente, fecha_hora, servicio,
-                       duracion_minutos, estado
+                       duracion_minutos, estado, fecha_ultima_cita
                 FROM citas
                 WHERE id = ?
                 """;
@@ -95,13 +106,17 @@ public class CitaDAO {
 
                 if (rs.next()) {
 
+                    java.sql.Date fechaBD =
+                            rs.getDate("fecha_ultima_cita");
+
                     Cita cita = new Cita(
                             rs.getInt("id"),
                             rs.getString("cliente"),
                             rs.getTimestamp("fecha_hora").toLocalDateTime(),
                             rs.getString("servicio"),
                             rs.getInt("duracion_minutos"),
-                            rs.getString("estado")
+                            rs.getString("estado"),
+                            fechaBD == null ? null : fechaBD.toLocalDate()
                     );
 
                     return Optional.of(cita);

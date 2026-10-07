@@ -1,6 +1,7 @@
 package edu.umg.programacion2.proyecto.modelo;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class Cita {
 
@@ -10,26 +11,33 @@ public class Cita {
     private String servicio;
     private int duracionMinutos;
     private String estado;
+    private LocalDate fechaUltimaCita;
 
     // Para crear una cita nueva
     public Cita(String cliente, LocalDateTime fechaHora,
-                String servicio, int duracionMinutos, String estado) {
+                String servicio, int duracionMinutos,
+                String estado, LocalDate fechaUltimaCita) 
+    {
         this.cliente = cliente;
         this.fechaHora = fechaHora;
         this.servicio = servicio;
         this.duracionMinutos = duracionMinutos;
         this.estado = estado;
+        this.fechaUltimaCita = fechaUltimaCita;
     }
 
     // Para representar una cita que ya existe en la base de datos
     public Cita(int id, String cliente, LocalDateTime fechaHora,
-                String servicio, int duracionMinutos, String estado) {
+                String servicio, int duracionMinutos,
+                String estado, LocalDate fechaUltimaCita) 
+    {
         this.id = id;
         this.cliente = cliente;
         this.fechaHora = fechaHora;
         this.servicio = servicio;
         this.duracionMinutos = duracionMinutos;
         this.estado = estado;
+        this.fechaUltimaCita = fechaUltimaCita;
     }
 
     public int getId() {
@@ -78,5 +86,12 @@ public class Cita {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+    public LocalDate getFechaUltimaCita() {
+        return fechaUltimaCita;
+    }
+
+    public void setFechaUltimaCita(LocalDate fechaUltimaCita) {
+        this.fechaUltimaCita = fechaUltimaCita;
     }
 }
