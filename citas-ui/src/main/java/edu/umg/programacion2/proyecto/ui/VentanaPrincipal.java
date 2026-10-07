@@ -358,14 +358,15 @@ public class VentanaPrincipal extends JFrame {
 
             for (Cita cita : citas) {
 
-                modeloTabla.addRow(new Object[] {
-                        cita.getId(),
-                        cita.getCliente(),
-                        cita.getFechaHora().format(formatoTabla),
-                        cita.getServicio(),
-                        cita.getDuracionMinutos() + " min",
-                        cita.getEstado()
-                });
+            	modeloTabla.addRow(new Object[] {
+            	        cita.getId(),
+            	        cita.getCliente(),
+            	        cita.getFechaHora().format(formatoTabla),
+            	        cita.getServicio(),
+            	        cita.getDuracionMinutos() + " min",
+            	        cita.getEstado(),
+            	        cita.getFechaUltimaCita() != null ? "✓" : ""
+            	});
             }
 
         } catch (SQLException ex) {
