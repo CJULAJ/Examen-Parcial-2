@@ -52,7 +52,8 @@ public class VentanaPrincipal extends JFrame {
                             "Fecha y hora",
                             "Servicio",
                             "Duración",
-                            "Estado"
+                            "Estado",
+                            "Cliente frecuente"
                     }, 0) {
 
                 private static final long serialVersionUID = 1L;
@@ -382,7 +383,8 @@ public class VentanaPrincipal extends JFrame {
         }
 
         idSeleccionado =
-                Integer.parseInt(modeloTabla.getValueAt(fila, 0).toString());
+                Integer.parseInt(
+                        modeloTabla.getValueAt(fila, 0).toString());
 
         txtCliente.setText(
                 modeloTabla.getValueAt(fila, 1).toString());
@@ -405,8 +407,31 @@ public class VentanaPrincipal extends JFrame {
 
         cmbEstado.setSelectedItem(
                 modeloTabla.getValueAt(fila, 5).toString());
-    }
 
+        // Buscar la cita para obtener la fecha de la última cita
+        try {
+
+            citaDAO.buscarPorId(idSeleccionado).ifPresent(cita -> {
+
+                if (cita.getFechaUltimaCita() != null) {
+
+                    txtFechaUltimaCita.setText(
+                            cita.getFechaUltimaCita().toString());
+
+                } else {
+
+                    txtFechaUltimaCita.setText("");
+                }
+
+                // La fecha de última cita no se puede modificar
+                txtFechaUltimaCita.setEnabled(false);
+            });
+
+        } catch (SQLException ex) {
+
+            mostrarErrorBD(ex);
+        }
+    }
     private void limpiarFormulario() {
 
         idSeleccionado = null;
@@ -416,6 +441,8 @@ public class VentanaPrincipal extends JFrame {
         txtHora.setText("");
         txtServicio.setText("");
         txtDuracion.setText("");
+        txtFechaUltimaCita.setText("");
+        txtFechaUltimaCita.setEnabled(true);
 
         cmbEstado.setSelectedItem("pendiente");
 
